@@ -2,8 +2,11 @@
 package view;
 
 import java.awt.event.ActionEvent;
+import javax.swing.table.DefaultTableModel; 
 import java.awt.event.ActionListener;
 import javax.swing.Timer;
+import logic.DoubleEnlacedList;
+import logic.Node;
 
 public class Screen extends javax.swing.JFrame {
 
@@ -60,6 +63,7 @@ public class Screen extends javax.swing.JFrame {
         numProcessLabel.setText("Numero de procesos: ");
 
         numProcessTextField.setBackground(new java.awt.Color(50, 50, 50));
+        numProcessTextField.setForeground(new java.awt.Color(245, 245, 245));
         numProcessTextField.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(187, 187, 187)));
         numProcessTextField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -68,7 +72,7 @@ public class Screen extends javax.swing.JFrame {
         });
 
         jTable1.setBackground(new java.awt.Color(50, 50, 50));
-        jTable1.setForeground(new java.awt.Color(50, 50, 50));
+        jTable1.setForeground(new java.awt.Color(254, 254, 254));
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null, null},
@@ -145,7 +149,7 @@ public class Screen extends javax.swing.JFrame {
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 242, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(19, 19, 19))
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
@@ -218,11 +222,40 @@ public class Screen extends javax.swing.JFrame {
     }//GEN-LAST:event_numProcessTextFieldActionPerformed
 
     private void startButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startButtonActionPerformed
+          String cantProcess = numProcessTextField.getText();
+    try {
+        int numProcess = Integer.parseInt(cantProcess);
+
         if (!timer.isRunning()) {
-              timer.start();
-              elapsedSeconds = 0;
-          }
+            timer.start();
+            elapsedSeconds = 0;
+        }
         updateTimerLabel();
+
+        DoubleEnlacedList list = new DoubleEnlacedList();
+        list.generateAndAddProcesses(numProcess);
+
+        // Imprimir la información de los procesos en la lista
+        Node currentNode = list.getHead();
+        DefaultTableModel tableModel = (DefaultTableModel) jTable1.getModel();
+        tableModel.setRowCount(0); // Limpiar la tabla antes de agregar nuevos datos
+
+        while (currentNode != null) {
+            logic.Process proceso = currentNode.process;
+            System.out.println("ID: " + proceso.getId() +
+                    ", Nombre: " + proceso.getName() +
+                    ", Operación: " + proceso.getOperation() +
+                    ", TME: " + proceso.getTme());
+
+            Object[] rowData = {proceso.getId(), proceso.getName(), proceso.getOperation(), proceso.getTme(), ""}; // La última columna está vacía
+            tableModel.addRow(rowData);
+
+            currentNode = currentNode.next;
+        }
+    } catch (NumberFormatException ex) {
+        // Manejo de errores si el valor no es un número válido
+        System.err.println("Error: El número de procesos no es válido.");
+    }
     }//GEN-LAST:event_startButtonActionPerformed
 
     private void resultsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resultsButtonActionPerformed
